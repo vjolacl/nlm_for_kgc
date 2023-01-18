@@ -4,7 +4,7 @@ from pykeen.models import TransE
 import torch
 from typing import List
 import pykeen.nn
-from pykeen.models.predict import get_tail_prediction_df
+from pykeen.models.predict import get_prediction_df
 
 
 dataset = Nations
@@ -20,18 +20,22 @@ relations_to_ids = nations.relation_to_id
 
 # Testing the KGE pipeline for TransE
 
-results = pipeline(
-    dataset='Nations',
-    model='TransE',
-    training_loop='sLCWA',
-)
+# Train TransE model with Nations dataset
+#results = pipeline(dataset='Nations', model='TransE', training_loop='sLCWA')
+
+#Save model in models directory
+#results.save_to_directory("models/nations_transE")
+
+# Load pre-trained model
+model = torch.load("models/nations_transE/trained_model.pkl")
+
 
 # Get an idea of a KGE model's results
-mdl_results = results._get_results()
-print(mdl_results.keys())
+#mdl_results = results._get_results()
+#print(mdl_results.keys())
 
 # Obtain representation from KGE model
-model = results.model # ----> TransE has only one representation for each entity and one for each relation
+#model = results.model # ----> TransE has only one representation for each entity and one for each relation
 entity_representation_modules: List['pykeen.nn.Representation'] = model.entity_representations
 relation_representation_modules: List['pykeen.nn.Representation'] = model.relation_representations
 
@@ -45,15 +49,16 @@ relation_embedding_tensor: torch.FloatTensor = relation_embeddings()
 
 # Evaluate KGE model on link prediction
 
-# Try-out tail prediction according to rank-based scoring
-df = get_tail_prediction_df(
+# Try-out tail prediction for one example, according to rank-based scoring
+df = get_prediction_df(
     model = model,
     head_label = "brazil",
     relation_label = "accusation",
-    triples_factory = results.training,
+    triples_factory = nations.training,
     add_novelties=False,
 )
 print(df)
+
 
 
 
