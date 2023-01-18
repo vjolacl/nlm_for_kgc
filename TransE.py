@@ -4,7 +4,7 @@ from pykeen.models import TransE
 import torch
 from typing import List
 import pykeen.nn
-from pykeen.models.predict import get_prediction_df
+from pykeen.models import predict
 
 
 dataset = Nations
@@ -50,7 +50,7 @@ relation_embedding_tensor: torch.FloatTensor = relation_embeddings()
 # Evaluate KGE model on link prediction
 
 # Try-out tail prediction for one example, according to rank-based scoring
-df = get_prediction_df(
+df = predict.get_prediction_df(
     model = model,
     head_label = "brazil",
     relation_label = "accusation",
@@ -58,6 +58,15 @@ df = get_prediction_df(
     add_novelties=False,
 )
 print(df)
+
+# Get scores for all possible triples
+predictions_df = predict.get_all_prediction_df(model, triples_factory=nations.training)
+predictions_df
+
+# Get scores for 20 highest scoring triples
+predictions_df_20 = predict.get_all_prediction_df(model,k = 20 ,triples_factory=nations.training)
+predictions_df_20
+
 
 
 
