@@ -5,9 +5,10 @@ import torch
 from typing import List
 import pykeen.nn
 from pykeen.models import predict
+from pykeen.evaluation import RankBasedEvaluator
 
 
-dataset = Nations
+#dataset = Nations possibly to be deleted
 
 # Store Nations dataset
 nations = Nations()
@@ -64,13 +65,29 @@ predictions_df = predict.get_all_prediction_df(model, triples_factory=nations.tr
 predictions_df
 
 # Get scores for 20 highest scoring triples
-predictions_df_20 = predict.get_all_prediction_df(model,k = 20 ,triples_factory=nations.training)
+predictions_df_20 = predict.get_all_prediction_df(model, k=20, triples_factory=nations.training)
 predictions_df_20
 
 
+# Evaluate the trained TransE model
 
+# Initialize evaluator method
+evaluator = RankBasedEvaluator()
 
+# Get triples to test (why mapped triples and not only testing??)
+mapped_triples = nations_test.mapped_triples
 
+# Evaluate
+eval_results = evaluator.evaluate(
+    model=model,
+    mapped_triples=mapped_triples,
+    batch_size=1024,
+    additional_filter_triples=[
+        nations.training.mapped_triples,
+        nations.validation.mapped_triples,
+    ],
+)
+df_eval_results = eval_results.to_df()
 
 print("finished")
 
