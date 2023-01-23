@@ -109,11 +109,13 @@ kg_entities = list(entities_to_ids.keys())
 entities_to_tokens = tokenizer.batch_encode_plus(kg_entities, return_tensors='pt')['input_ids']
 
 # Map the token ID to entity
+df_entities["token ID"] = entities_to_tokens.tolist()
 
-df_entities["token ID"] = [entities_to_tokens[i][1] for i in range(len(entities_to_tokens))]
+# Load the BERT model and tokenizer
+model = BertModel.from_pretrained('bert-base-uncased')
 
-
-
+# Extract the word embeddings
+embeddings = model(entities_to_tokens)[0]
 
 
 
