@@ -6,6 +6,8 @@ from typing import List
 import pykeen.nn
 from pykeen.models import predict
 from pykeen.evaluation import RankBasedEvaluator
+from transformers import BertTokenizer, BertModel
+import pandas as pd
 
 
 #dataset = Nations possibly to be deleted
@@ -89,5 +91,31 @@ eval_results = evaluator.evaluate(
 )
 df_eval_results = eval_results.to_df()
 
-print("finished")
 
+print("---------------------------------------------------------------")
+
+
+
+# TEST: Extract word embeddings from BERT using Nations dataset)
+
+# Load pre-trained model tokenizer (vocabulary)
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+
+# BERT input: get KG entities into list, preserving the sequence in which they are extracted
+df_entities = pd.DataFrame(entities_to_ids.items(), columns= ["entity", "index"])
+kg_entities = list(entities_to_ids.keys())
+
+# Tokenize the KG entities
+entities_to_tokens = tokenizer.batch_encode_plus(kg_entities, return_tensors='pt')['input_ids']
+
+# Map the token ID to entity
+
+df_entities["token ID"] = [entities_to_tokens[i][1] for i in range(len(entities_to_tokens))]
+
+
+
+
+
+
+
+print("---------------------------------------------------------------")
