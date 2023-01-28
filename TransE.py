@@ -112,10 +112,26 @@ entities_to_tokens = tokenizer.batch_encode_plus(kg_entities, return_tensors='pt
 df_entities["token ID"] = entities_to_tokens.tolist()
 
 # Load the BERT model and tokenizer
-model = BertModel.from_pretrained('bert-base-uncased')
+model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
+model.eval() # Question nr.1: What is the difference in putting model in evaluation mode or not?
+
+# Understanding the output
+output = model(entities_to_tokens)
+print("Pre-trained BERT output consists of:", output.keys())
+hidden_states = output["hidden_states"]
+
+print ("Number of layers:", len(hidden_states), "  (initial embeddings + 12 BERT layers)")
+layer_i = 0
+print ("Number of batches:", len(hidden_states[layer_i]))
+batch_i = 0
+print ("Number of tokens:", len(hidden_states[layer_i][batch_i]))
+token_i = 0
+print ("Number of hidden units:", len(hidden_states[layer_i][batch_i][token_i]))
+
 
 # Extract the word embeddings
-embeddings = model(entities_to_tokens)[0]
+#layers = [-1,-2,-3,-4]
+
 
 
 
