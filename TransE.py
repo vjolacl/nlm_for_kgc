@@ -9,6 +9,10 @@ from pykeen.evaluation import RankBasedEvaluator
 from transformers import BertTokenizer, BertModel
 import pandas as pd
 
+from nltk.tokenize import sent_tokenize, word_tokenize
+import gensim
+from gensim.models import Word2Vec
+from wordsegment import load, segment
 
 #dataset = Nations possibly to be deleted
 
@@ -122,15 +126,45 @@ hidden_states = output["hidden_states"]
 
 print ("Number of layers:", len(hidden_states), "  (initial embeddings + 12 BERT layers)")
 layer_i = 0
-print ("Number of batches:", len(hidden_states[layer_i]))
+print ("Number of text sequences:", len(hidden_states[layer_i]))
 batch_i = 0
-print ("Number of tokens:", len(hidden_states[layer_i][batch_i]))
+print ("Number of tokens (sequence length):", len(hidden_states[layer_i][batch_i]))
 token_i = 0
 print ("Number of hidden units:", len(hidden_states[layer_i][batch_i][token_i]))
 
+# Concat last 4 hidden states for token 0 = CLS token
+#cls_embdd = hidden_states[:][:][0]
+embdd_concatenated = []
 
-# Extract the word embeddings
-#layers = [-1,-2,-3,-4]
+# For each text sequence...
+for index in range(len(hidden_states[0])):
+    # Concatenate the vectors from the last four layers. Each layer vector is 768 values, so `cat_vec` is length 4*768.
+    cat_vec = torch.cat((hidden_states[-1][index][0], hidden_states[-2][index][0],
+                         hidden_states[-3][index][0], hidden_states[-4][index][0]), dim=0)
+    embdd_concatenated.append(cat_vec)
+
+
+print("---------------------------------------------------------------")
+
+
+# Generate word embeddings from Word2Vec
+
+# Store KG relations in dataframe to keep track
+df_relations = pd.DataFrame(relations_to_ids.items(), columns= ["relation", "index"])
+
+# Download otherwise package does not function
+nltk.download('punkt')
+
+# Separate words within KG relations
+load()
+df_relations["segmented relations"] = [segment(relation) for relation in df_relations["relation"]]
+
+
+
+
+
+
+
 
 
 
