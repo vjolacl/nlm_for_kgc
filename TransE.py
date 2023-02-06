@@ -8,7 +8,9 @@ from pykeen.models import predict
 from pykeen.evaluation import RankBasedEvaluator
 from transformers import BertTokenizer, BertModel
 import pandas as pd
+import numpy as np
 
+import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 import gensim
 from gensim.models import Word2Vec
@@ -96,7 +98,7 @@ eval_results = evaluator.evaluate(
 df_eval_results = eval_results.to_df()
 
 
-print("---------------------------------------------------------------")
+print("---------------------------- BERT embeddings -----------------------------------")
 
 
 
@@ -144,7 +146,7 @@ for index in range(len(hidden_states[0])):
     embdd_concatenated.append(cat_vec)
 
 
-print("---------------------------------------------------------------")
+print("---------------------------- Word2Vec embeddings -----------------------------------")
 
 
 # Generate word embeddings from Word2Vec
@@ -158,16 +160,37 @@ nltk.download('punkt')
 # Separate words within KG relations
 load()
 df_relations["segmented relations"] = [segment(relation) for relation in df_relations["relation"]]
+df_relations_expanded = df_relations[["index", "segmented relations"]].explode("segmented relations")
+df_relations_expanded = df_relations_expanded.reset_index(drop=True)  #reset index
+
+# Transform segmented relations to list -> ready to feed to Word2Vec model
+#input_word2vec = df_relations_expanded["segmented relations"].tolist()
+input_word2vec = [df_relations["segmented relations"][i] for i in range(len(df_relations["segmented relations"]))] # treat combined relations as sentences
+
+
+# Word2Vec model
+w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count = 1,vector_size = 4, window = 1, sg=0)
+#w2v_cbow.save("models/nations_w2v_cbow")
+word_vectors = w2v_cbow.wv.vectors        # Retrieve word vectors
+wv_keys = list(w2v_cbow.wv.index_to_key)  # Retrieve keys to word vectors
+wv_dict = res = {wv_keys[i]: word_vectors[i] for i in range(len(wv_keys))} # Save word vectors with respective key in dictionary
+
+# Compute average word embeddings for each KG relation
+averaged_embeddings = []
+for row in df_relations["segmented relations"]:
+    lst = []
+    for item in row:
+        print(row)
+        print(item)
+        lst.append(wv_dict[item])
+        print(lst)
+    avg_embdd = np.mean(lst, axis=0)
+    print(avg_embdd)
+    averaged_embeddings.append(avg_embdd)
+
+df_relations["averaged embeddings"] = averaged_embeddings
 
 
 
 
-
-
-
-
-
-
-
-
-print("---------------------------------------------------------------")
+print("------------------------ Finished ---------------------------------------")
