@@ -9,6 +9,7 @@ from pykeen.evaluation import RankBasedEvaluator
 from transformers import BertTokenizer, BertModel
 import pandas as pd
 import numpy as np
+from pykeen.nn.init import PretrainedInitializer
 
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -146,6 +147,9 @@ for index in range(len(hidden_states[0])):
     embdd_concatenated.append(cat_vec)
 
 
+
+
+
 print("---------------------------- Word2Vec embeddings -----------------------------------")
 
 
@@ -166,7 +170,6 @@ df_relations_expanded = df_relations_expanded.reset_index(drop=True)  #reset ind
 # Transform segmented relations to list -> ready to feed to Word2Vec model
 #input_word2vec = df_relations_expanded["segmented relations"].tolist()
 input_word2vec = [df_relations["segmented relations"][i] for i in range(len(df_relations["segmented relations"]))] # treat combined relations as sentences
-
 
 # Word2Vec model
 w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count = 1,vector_size = 4, window = 1, sg=0)
