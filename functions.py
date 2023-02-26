@@ -1,6 +1,4 @@
-from pykeen.pipeline import pipeline
-from pykeen.datasets import Nations
-from pykeen.models import TransE
+
 import torch
 from typing import List
 import pykeen.nn
@@ -10,17 +8,13 @@ from transformers import BertTokenizer, BertModel
 import pandas as pd
 import numpy as np
 from pykeen.nn.init import PretrainedInitializer
-
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 import gensim
 from gensim.models import Word2Vec
 from wordsegment import load, segment
 
-def get_data():
-
-    # Store dataset into separate training and test data
-    dataset = Nations()
+def get_data(dataset):
     dataset_train = dataset.training
     dataset_test = dataset.testing
 
@@ -30,38 +24,32 @@ def get_data():
 
     return entities_to_ids, relations_to_ids
 
-
 #---------- BERT embeddings ----------
 
-def generate_BERT_entity_embeddings(entities_to_ids, relations_to_ids):
+def generate_bert_embeddings(input_dict):
 
     # Load pre-trained model tokenizer (vocabulary)
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     # BERT input: get KG entities/relations into separate lists, preserving the sequence in which they are extracted
-    df_entities = pd.DataFrame(entities_to_ids.items(), columns= ["entity", "index"])
-    kg_entities = list(entities_to_ids.keys())
-
-    df_relations = pd.DataFrame(relations_to_ids.items(), columns=["relation", "index"])
-    kg_relations = list(relations_to_ids.keys())
-
+    df = pd.DataFrame(input_dict.items(), columns= ["entity/relation", "index"])
+    kg_input = list(input_dict.keys())
 
     # Tokenize the KG entities
-    entities_to_tokens = tokenizer.batch_encode_plus(kg_entities, padding = True,return_tensors='pt')['input_ids']
-    relations_to_tokens = tokenizer(kg_relations, padding=True, return_tensors='pt')['input_ids']
+    input_to_tokens = tokenizer(kg_input, padding=True, return_tensors='pt')['input_ids']
 
     # Map the token ID to entity
-    df_entities["token ID"] = entities_to_tokens.tolist()
-
+    df["token ID"] = input_to_tokens.tolist()
+    
     # Load the BERT model and tokenizer
     model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
-    model.eval() # Question nr.1: What is the difference in putting model in evaluation mode or not?
+    model.eval() #Question nr.1: What is the difference in putting model in evaluation mode or not?
 
-    # Understanding the output
-    output = model(entities_to_tokens)
+    # Generate embeddings
+    output = model(input_to_tokens)
     hidden_states = output["hidden_states"]
 
-    return hidden_states, df_entities
+    return hidden_states, df
 
 def concat_hidden_states(hidden_states):
     # Concat last 4 hidden states for token 0 = CLS token, cls_embdd = hidden_states[:][:][0]
@@ -79,7 +67,48 @@ def concat_hidden_states(hidden_states):
 
     return embdd_tensor
 
+#--------- KGE word embeddings --------
 
+def retrieve_kge_embeddings(model):
+
+    # Obtain representation from KGE model
+    #model = results.model # ----> TransE has only one representation for each entity and one for each relation
+    entity_representation_modules: List['pykeen.nn.Representation'] = model.entity_representations
+    relation_representation_modules: List['pykeen.nn.Representation'] = model.relation_representations
+
+    # Access all entity embeddings, for TranE length of list is 1
+    entity_embeddings: pykeen.nn.Embedding = entity_representation_modules[0]
+    relation_embeddings: pykeen.nn.Embedding = relation_representation_modules[0]
+
+    # Representations are subclasses of torch.nn.Module, so call them like functions to invoke the forward() method and get the values
+    entity_embedding_tensor: torch.FloatTensor = entity_embeddings()
+    relation_embedding_tensor: torch.FloatTensor = relation_embeddings()
+
+    return entity_embedding_tensor, relation_embedding_tensor
+
+
+
+def evaluate_kge_model(kge_model, dataset):
+
+    # Initialize evaluator method
+    evaluator = RankBasedEvaluator()
+
+    # Get triples to test (why mapped triples and not only testing??)
+    mapped_triples = dataset.testing.mapped_triples #shape: (n, 3)-A 3 column matrix, each row are the head, relation and tail identifier.
+
+    # Evaluate
+    eval_results = evaluator.evaluate(
+        model=kge_model,
+        mapped_triples=mapped_triples,
+        batch_size=1024, #Qestion: What does the batch size influence and how?
+        additional_filter_triples=[
+            dataset.training.mapped_triples,
+            dataset.validation.mapped_triples,
+        ],)
+
+    df_eval_results = eval_results(metrics=["mean_rank", "mean_reciprocal_rank", "hits@_k").to_df()
+
+    return df_eval_results
 
 
 

@@ -96,7 +96,7 @@ eval_results = evaluator.evaluate(
         nations.validation.mapped_triples,
     ],
 )
-df_eval_results = eval_results.to_df()
+df_eval_results = eval_results().to_df()
 
 
 print("---------------------------- BERT embeddings -----------------------------------")
