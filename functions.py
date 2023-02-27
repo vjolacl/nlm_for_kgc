@@ -98,7 +98,7 @@ def evaluate_kge_model(kge_model, dataset):
 
     # Evaluate
     eval_results = evaluator.evaluate(
-        model=kge_model,
+        model=kge_model, 
         mapped_triples=mapped_triples,
         batch_size=1024, #Qestion: What does the batch size influence and how?
         additional_filter_triples=[
@@ -106,9 +106,15 @@ def evaluate_kge_model(kge_model, dataset):
             dataset.validation.mapped_triples,
         ],)
 
-    df_eval_results = eval_results(metrics=["mean_rank", "mean_reciprocal_rank", "hits@_k").to_df()
+    df_eval_results_raw = eval_results.to_df()
 
-    return df_eval_results
+    hitsat10 = eval_results.get_metric("hits_at_10")
+    mr = eval_results.get_metric("mean_rank")
+    mrr = eval_results.get_metric("mean_reciprocal_rank")
+    key_metrics = {"hits_at_10": hitsat10, "mean_rank": mr, "mean_reciprocal_rank": mrr}
+
+
+    return df_eval_results_raw, key_metrics
 
 
 

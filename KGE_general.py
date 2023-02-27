@@ -30,8 +30,8 @@ entity_embdd = concat_hidden_states(bert_output_ent[0])
 relation_embdd = concat_hidden_states(bert_output_rel[0])
 
 # Save word embeddings for both entities and relations including all hidden states
-torch.save(bert_output_ent[0], '02_evaluation_results/bert_hiddenstates_nations_ent.pt')
-torch.save(bert_output_rel[0], '02_evaluation_results/bert_hiddenstates_nations_rel.pt')
+torch.save(bert_output_ent[0], '04_nlm_word_embeddings/bert_hiddenstates_nations_ent.pt')
+torch.save(bert_output_rel[0], '04_nlm_word_embeddings/bert_hiddenstates_nations_rel.pt')
 
 # Train KGE model with input data → Save results
 result = pipeline(
@@ -43,16 +43,16 @@ result = pipeline(
         relation_initializer=PretrainedInitializer(tensor=relation_embdd),
     ),
 )
-#results.save_to_directory("01_models/nations_transE_bert_no1")
+result.save_to_directory("01_models/nations_transE_bert_no1")
 
 
 # Retrieve word embeddings from KGE model → Save results
-
+#call function here from function.py file
 
 
 # Evaluate KGE model on link prediction → Save results
-
-
+eval_results_raw, key_metrics = evaluate_kge_model(result.model, dataset=Nations())
+eval_results_raw.to_csv('02_evaluation_results/eval_results_nations_transEbert.csv')
 
 
 print("done")

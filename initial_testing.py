@@ -37,8 +37,7 @@ relations_to_ids = nations.relation_to_id
 #results.save_to_directory("models/nations_transE")
 
 # Load pre-trained model
-model = torch.load("models/nations_transE/trained_model.pkl")
-
+model = torch.load("01_models/nations_transE_no1/trained_model.pkl")
 
 # Get an idea of a KGE model's results
 #mdl_results = results._get_results()
@@ -96,8 +95,11 @@ eval_results = evaluator.evaluate(
         nations.validation.mapped_triples,
     ],
 )
-df_eval_results = eval_results().to_df()
+df_eval_results = eval_results.to_df()
 
+
+
+from pykeen.evaluation import
 
 print("---------------------------- BERT embeddings -----------------------------------")
 
