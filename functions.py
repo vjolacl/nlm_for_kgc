@@ -13,6 +13,8 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 import gensim
 from gensim.models import Word2Vec
 from wordsegment import load, segment
+nltk.download('punkt')
+
 
 def get_data(dataset):
     dataset_train = dataset.training
@@ -66,6 +68,72 @@ def concat_hidden_states(hidden_states):
     embdd_tensor = torch.stack(embdd_concatenated, 0)
 
     return embdd_tensor
+
+#---------- Word2Vec embeddings ----------
+
+
+# Generate word embeddings from Word2Vec
+
+def generate_word2vec_embeddings(input_dict, entity):
+    # Download otherwise package does not function
+
+    if entity=True:
+        # Store KG entities in dataframe to keep track
+        df_entities = pd.DataFrame(input_dict.items(), columns=["entity", "index"])
+
+        # Store each entity in separate list, then store all lists into a list → needed for word2vec input
+        row_list = []
+        for rows in df_entities.itertuples():
+            my_list = [rows.entity] #Create list for the current row
+            row_list.append(my_list) #append the list to the final list
+        input_word2vec = row_list
+
+        # Word2Vec model
+        w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count=1, vector_size=4, window=1, sg=0)
+        word_vectors = w2v_cbow.wv.vectors  # Retrieve word vectors
+        wv_keys = list(w2v_cbow.wv.index_to_key)  # Retrieve keys to word vectors
+        wv_dict = res = {wv_keys[i]: word_vectors[i] for i in range(len(wv_keys))}  # Save word vectors with respective key in dictionary
+
+        mapping = wv_dict
+        embeddings = word_vectors
+    else:
+
+        # Store KG relations in dataframe to keep track
+        df_relations = pd.DataFrame(input_dict.items(), columns= ["relation", "index"])
+
+        # Separate words within KG relations
+        load()
+        df_relations["segmented relations"] = [segment(relation) for relation in df_relations["relation"]]
+        df_relations_expanded = df_relations[["index", "segmented relations"]].explode("segmented relations")
+        df_relations_expanded = df_relations_expanded.reset_index(drop=True)  #reset index
+
+        # Transform segmented relations to list -> ready to feed to Word2Vec model
+        #input_word2vec = df_relations_expanded["segmented relations"].tolist()
+        input_word2vec = [df_relations["segmented relations"][i] for i in range(len(df_relations["segmented relations"]))] # treat combined relations as sentences
+
+        # Word2Vec model
+        w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count = 1,vector_size = 4, window = 1, sg=0)
+        word_vectors = w2v_cbow.wv.vectors        # Retrieve word vectors
+        wv_keys = list(w2v_cbow.wv.index_to_key)  # Retrieve keys to word vectors
+        wv_dict = res = {wv_keys[i]: word_vectors[i] for i in range(len(wv_keys))} # Save word vectors with respective key in dictionary
+
+        # Compute average word embeddings for each KG relation
+        averaged_embeddings = []
+        for row in df_relations["segmented relations"]:
+            lst = []
+            for item in row:
+                lst.append(wv_dict[item])
+            avg_embdd = np.mean(lst, axis=0)
+            averaged_embeddings.append(avg_embdd)
+
+        df_relations["averaged embeddings"] = averaged_embeddings
+        embeddings = averaged_embeddings
+        mapping = df_relations
+
+
+    return mapping, embeddings
+
+
 
 #--------- KGE word embeddings --------
 

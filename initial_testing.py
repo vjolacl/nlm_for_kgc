@@ -154,7 +154,6 @@ for index in range(len(hidden_states[0])):
 
 print("---------------------------- Word2Vec embeddings -----------------------------------")
 
-
 # Generate word embeddings from Word2Vec
 
 # Store KG relations in dataframe to keep track
@@ -194,7 +193,6 @@ for row in df_relations["segmented relations"]:
     averaged_embeddings.append(avg_embdd)
 
 df_relations["averaged embeddings"] = averaged_embeddings
-
 
 
 
