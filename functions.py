@@ -1,4 +1,3 @@
-
 import torch
 from typing import List
 import pykeen.nn
@@ -77,7 +76,7 @@ def concat_hidden_states(hidden_states):
 def generate_word2vec_embeddings(input_dict, entity):
     # Download otherwise package does not function
 
-    if entity=True:
+    if entity == True:
         # Store KG entities in dataframe to keep track
         df_entities = pd.DataFrame(input_dict.items(), columns=["entity", "index"])
 
@@ -89,13 +88,13 @@ def generate_word2vec_embeddings(input_dict, entity):
         input_word2vec = row_list
 
         # Word2Vec model
-        w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count=1, vector_size=4, window=1, sg=0)
-        word_vectors = w2v_cbow.wv.vectors  # Retrieve word vectors
+        w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count=1, vector_size=100, window=1, sg=0)
+        word_vectors = w2v_cbow.wv.vectors  # Retrieve word vectors of type numpy array
         wv_keys = list(w2v_cbow.wv.index_to_key)  # Retrieve keys to word vectors
         wv_dict = res = {wv_keys[i]: word_vectors[i] for i in range(len(wv_keys))}  # Save word vectors with respective key in dictionary
 
         mapping = wv_dict
-        embeddings = word_vectors
+        embeddings = torch.from_numpy(word_vectors) #Convert to tensor to use as input for KGE
     else:
 
         # Store KG relations in dataframe to keep track
@@ -112,7 +111,7 @@ def generate_word2vec_embeddings(input_dict, entity):
         input_word2vec = [df_relations["segmented relations"][i] for i in range(len(df_relations["segmented relations"]))] # treat combined relations as sentences
 
         # Word2Vec model
-        w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count = 1,vector_size = 4, window = 1, sg=0)
+        w2v_cbow = gensim.models.Word2Vec(input_word2vec, min_count = 1,vector_size = 100, window = 1, sg=0)
         word_vectors = w2v_cbow.wv.vectors        # Retrieve word vectors
         wv_keys = list(w2v_cbow.wv.index_to_key)  # Retrieve keys to word vectors
         wv_dict = res = {wv_keys[i]: word_vectors[i] for i in range(len(wv_keys))} # Save word vectors with respective key in dictionary
@@ -127,7 +126,7 @@ def generate_word2vec_embeddings(input_dict, entity):
             averaged_embeddings.append(avg_embdd)
 
         df_relations["averaged embeddings"] = averaged_embeddings
-        embeddings = averaged_embeddings
+        embeddings = torch.tensor(np.array(averaged_embeddings))  # Convert to tensor to use as input for KGE
         mapping = df_relations
 
 
