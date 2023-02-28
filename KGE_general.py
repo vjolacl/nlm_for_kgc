@@ -50,7 +50,7 @@ result = pipeline(
         relation_initializer=PretrainedInitializer(tensor=relation_embdd),
     ),
 )
-result.save_to_directory("01_models/nations_transE_word2vec_no1")
+#result.save_to_directory("01_models/nations_transE_word2vec_no1")
 
 
 # Retrieve word embeddings from KGE model → Save results
@@ -60,6 +60,6 @@ result.save_to_directory("01_models/nations_transE_word2vec_no1")
 # Evaluate KGE model on link prediction → Save results
 eval_results_raw, key_metrics = evaluate_kge_model(result.model, dataset=Nations())
 #eval_results_raw.to_csv('02_evaluation_results/eval_results_nations_transE_word2vec.csv')
-
+print(key_metrics)
 
 print("done")
