@@ -197,3 +197,6 @@ df_relations["averaged embeddings"] = averaged_embeddings
 
 
 print("------------------------ Finished ---------------------------------------")
+
+
+
