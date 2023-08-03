@@ -1,0 +1,44 @@
+path:
+  ent_path: '../03_nlm_embeddings/word2vec_wn18rr/05_word2vec_wn18rr_300dim_ent_sorted.pt'
+  rel_path: '../03_nlm_embeddings/word2vec_wn18rr/05_word2vec_wn18rr_300dim_rel_sorted.pt'
+  save_model_name: 'config_test'
+
+model_name: 'conve'
+
+common:
+  dataset: "wn18rr"
+  dataset_kwargs:
+    create_inverse_triples: false
+  optimizer_kwargs:
+    lr: 0.01
+    weight_decay: 0.0
+  lr_scheduler: 'ExponentialLR'
+  lr_scheduler_kwargs:
+    gamma: 0.995
+  loss: 'bcewithlogits'
+  training_loop: 'lcwa'
+  training_kwargs:
+    num_epochs: 5
+    batch_size: 128
+    label_smoothing: 0.1
+    checkpoint_name: 'config_test.pt'
+    checkpoint_directory: '01_models/convE/checkpoints'
+    checkpoint_frequency: 30
+
+models:
+  transe:
+    scoring_fct_norm: 1
+  conve:
+    feature_map_dropout: 0.5
+    input_dropout: 0.4
+    kernel_height: 3
+    kernel_width: 3
+    output_channels: 16
+    output_dropout: 0
+    # Add other ConvE-specific parameters here.
+  tucker:
+    dropout_0: 0.2
+    dropout_1: 0.2
+    dropout_2: 0.3
+ # rotate:
+    # Add other RotatE-specific parameters here.

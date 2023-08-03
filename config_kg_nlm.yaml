@@ -1,0 +1,31 @@
+path:
+  train: '07_roberta/processed_input/wn18rr/train_one_sequence'
+  test: '07_roberta/processed_input/wn18rr/test_one_sequence'
+  val: '07_roberta/processed_input/wn18rr/val_one_sequence'
+  trained_model: '07_roberta/roberta_wn18rr_nonfrozenL_10epochs/model'
+
+tokenizer: 'roberta-base' # e.g. 'distilbert-base-uncased' ; 'roberta--base' ; 'bigscience/bloom-560m'
+
+model: 'roberta-base' # e.g. 'distilbert-base-uncased'  ; 'roberta-base' ; 'bigscience/bloom-560m'
+
+training_arguments:
+  output_dir: '07_roberta/roberta_wn18rr_nonfrozenL_10epochs'
+  num_train_epochs: 10
+  learning_rate: 0.00005
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 32
+  eval_accumulation_steps: 8
+  per_device_eval_batch_size: 8
+  evaluation_strategy: "steps"
+  save_strategy: "steps"
+  disable_tqdm: False
+  load_best_model_at_end: True
+  eval_steps: 400
+  save_steps: 400
+  warmup_steps: 500
+  weight_decay: 0.01
+  logging_steps: 8
+  fp16: False
+  logging_dir: '07_roberta/roberta_wn18rr_nonfrozenL_10epochs'
+  run_name: 'roberta-wn18rr-nonfrozenL-10epochs'
+
