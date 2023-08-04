@@ -1,6 +1,6 @@
 path:
-  ent_path: '../03_nlm_embeddings/word2vec_wn18rr/05_word2vec_wn18rr_300dim_ent_sorted.pt'
-  rel_path: '../03_nlm_embeddings/word2vec_wn18rr/05_word2vec_wn18rr_300dim_rel_sorted.pt'
+  ent_path: '../02_nlm_embeddings/word2vec_wn18rr/05_word2vec_wn18rr_300dim_ent_sorted.pt'
+  rel_path: '../02_nlm_embeddings/word2vec_wn18rr/05_word2vec_wn18rr_300dim_rel_sorted.pt'
   save_model_name: 'config_test'
 
 model_name: 'conve'
