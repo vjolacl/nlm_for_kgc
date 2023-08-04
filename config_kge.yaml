@@ -40,5 +40,3 @@ models:
     dropout_0: 0.2
     dropout_1: 0.2
     dropout_2: 0.3
- # rotate:
-    # Add other RotatE-specific parameters here.

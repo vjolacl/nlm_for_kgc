@@ -73,10 +73,8 @@ def load_ent_embeddings(path, device):
             pt_files.append(filename)
     print(pt_files)
 
-    rel = pt_files[0]
     ent = pt_files[1:]
 
-    rel_embedd_raw = torch.load(path + '/' + rel, map_location = torch.device(device))
 
     ent_embedd_raw = []
     for file in ent:
@@ -86,7 +84,7 @@ def load_ent_embeddings(path, device):
         del batch_embedd
         torch.cuda.empty_cache()
     
-    return ent_embedd_raw, rel_embedd_raw
+    return ent_embedd_raw
 
 
 def load_bert(device):
