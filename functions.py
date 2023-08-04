@@ -64,13 +64,20 @@ def load_ent_embeddings(path, device):
         List of BERT entity embeddings; needs further processing due to batch structure shape(17,4,2500,19,768)
 
     """
+    pt_files = []
     files = os.listdir(path)
     files = sorted(files)
 
-    # Ignore first two files in directory: one is relation embedddings and the other one is jupyter nootebook file
-    ent = files[2:]
-    print(files)
-    
+    for filename in files:
+        if filename.endswith(".pt"):
+            pt_files.append(filename)
+    print(pt_files)
+
+    rel = pt_files[0]
+    ent = pt_files[1:]
+
+    rel_embedd_raw = torch.load(path + '/' + rel, map_location = torch.device(device))
+
     ent_embedd_raw = []
     for file in ent:
         batch_embedd = torch.load(path + '/' + file, map_location = torch.device(device))
@@ -79,7 +86,7 @@ def load_ent_embeddings(path, device):
         del batch_embedd
         torch.cuda.empty_cache()
     
-    return ent_embedd_raw
+    return ent_embedd_raw, rel_embedd_raw
 
 
 def load_bert(device):
@@ -356,7 +363,15 @@ def save_dict(dic, name):
 
                 
 def rotate_bert_init(re_layer, im_layer):
-                
+    """
+
+    Args:
+        re_layer:
+        im_layer:
+
+    Returns:
+
+    """
     # Retrieve embeddings for CLS layer and turn to tensor 
     re = torch.stack([re_layer[rel][0] for rel in range(len(re_layer))])
     im = torch.stack([im_layer[rel][0] for rel in range(len(im_layer))])
@@ -390,6 +405,14 @@ def concat_ent_embeddings(ent_embedd_raw):
 
 
 def init_phases(x):
+    """
+    This function computes the complex relation vector.
+    Args:
+        x: provide input tensor
+
+    Returns:
+        Complex relation vector
+    """
     if x.shape[-1] != 2:
             new_shape = (*x.shape[:-1], -1, 2)
             x = x.view(*new_shape)

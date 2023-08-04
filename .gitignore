@@ -207,6 +207,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 wandb
-01_models
-02_evaluation_results
-03_nlm_embeddings
+
