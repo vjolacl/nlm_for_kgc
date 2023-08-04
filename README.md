@@ -15,18 +15,30 @@ provides entity and relation textual descriptions for both datasets
 #### - 01_kg_nlm_datasets: 
 provides precomputed train/test/val sets for both datasets  
 
-#### - 02_nlm_embeddings: provides precomputed NLM-generated (Word2Vec and BERT) embeddings used in the first approach.
-#### - bert_embeddings.ipynb: jupyter notebook used to generate BERT embeddings
-#### - word_embeddings.ipynb: jupyter notebook used to generate Word2Vec embeddings
-#### - config_kg_nlm.yaml: config file to provide all input data and hyperparameters to train the KG-NLM models
-#### - config_kge.yaml: config file to provide all input data and hyperparameters to train the KGE models with NLM embeddings
-#### - data_preprocessing_kg_nlm.ipynb: jupyter notebook used to generate input data for the KG-NLM approach
-#### - dim_reduction.ipynb: jupyter notebook to generate the PCA NLM embeddings
-#### - functions.py: python file containing all relevant functions 
-#### - job.sh: bash script file to run models on server 
-#### - rotate.ipynb: jupyter notebook tu run rotatE model
-#### - run_kg_nlm.py: script to run KG-NLM models 
-#### - run_kge.py: script to run KGE models 
+#### - 02_nlm_embeddings: 
+provides precomputed NLM-generated (Word2Vec and BERT) embeddings used in the first approach.
+#### - bert_embeddings.ipynb: 
+jupyter notebook used to generate BERT embeddings
+#### - word_embeddings.ipynb: 
+jupyter notebook used to generate Word2Vec embeddings
+#### - config_kg_nlm.yaml: c
+onfig file to provide all input data and hyperparameters to train the KG-NLM models
+#### - config_kge.yaml: 
+config file to provide all input data and hyperparameters to train the KGE models with NLM embeddings
+#### - data_preprocessing_kg_nlm.ipynb: 
+jupyter notebook used to generate input data for the KG-NLM approach
+#### - dim_reduction.ipynb: 
+jupyter notebook to generate the PCA NLM embeddings
+#### - functions.py: 
+python file containing all relevant functions 
+#### - job.sh: 
+bash script file to run models on server 
+#### - rotate.ipynb: 
+jupyter notebook tu run rotatE model
+#### - run_kg_nlm.py: 
+script to run KG-NLM models 
+#### - run_kge.py: 
+script to run KGE models 
 
 
 
